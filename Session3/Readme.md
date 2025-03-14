@@ -18,7 +18,7 @@ npm install cowsay
 This installs the `cowsay` package locally. To use it, run:
 ```sh
 npx cowsay "Hello, World!"
-```
+```cd
 
 ### Running a Package with `npx`
 ```sh

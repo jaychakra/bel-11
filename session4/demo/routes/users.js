@@ -3,6 +3,8 @@ const router = express.Router();
 router.use(express.json());
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET
 
 const usersModel = require("../models/usersModel");
 
@@ -16,7 +18,7 @@ const registerUserHandler = async (req, res) => {
 
 const loginUserHandler = async (req, res) => {
     const { email, password } = req.body;
-    
+
     const body = {
         email: email
     };
@@ -32,9 +34,11 @@ const loginUserHandler = async (req, res) => {
     if (!isSamePassword) {
         return res.status(401).send({message :"Invalid Password"});
     }
+    
+    const token = jwt.sign({email: dbUser.email, role: dbUser.role}, JWT_SECRET, {expiresIn: "1h"});
 
-    const response ={_id: dbUser._id, email: dbUser.email, role: dbUser.role};
-    return res.status(200).send({user: response});
+    // const response = {_id: dbUser._id, email: dbUser.email, role: dbUser.role};
+    return res.status(200).send({token: token});
 }
 
 router.post("/register", registerUserHandler);
@@ -122,8 +126,37 @@ Create a course
 Extract the token
 validate it against the DB
 Need to validate the roles 
-
 If valid, create a course
+*/
+
+
+// Jobs of a system that manages token
+// - A token should uniquely identify a user
+// - Token should have expiry
+// - Mechanism to invalidate / destroy a token
+// - Token may contain some data 
+// - Good to have feature Refresh tokens () ==> Depends on use case to use case
+// - Who should own the generation of token?
+
+
+/* Anatomy of a JWT Token (JSON Web Token)
+Headers
+- 
+Payload: 
+role: user -> admin
+-
+Signature: Hash f(headers, payload, "SECRETCODE")
+
+
 
 
 */
+
+
+
+
+
+
+
+
+
