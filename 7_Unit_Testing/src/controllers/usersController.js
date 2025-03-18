@@ -5,17 +5,14 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET
 const usersModel = require("../models/usersModel");
 
-const registerUser = async (req, res) => {
-    const user = req.body;
+const registerUser = async (user) => {
     user.password = bcrypt.hashSync(user.password, saltRounds);
     const dbUser = await usersModel.create(user);
-    console.log(dbUser);
-    res.send(dbUser);
+    return dbUser;
 };
  
-const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-
+const loginUser = async (email, password) => {
+    
     const body = {
         email: email
     };
@@ -34,8 +31,8 @@ const loginUser = async (req, res) => {
     
     const token = jwt.sign({email: dbUser.email, role: dbUser.role}, JWT_SECRET, {expiresIn: "1h"});
 
-    return res.status(200).send({token: token});
+    return token;
 }
 
 
-moodule.exports = {registerUser, loginUser};
+module.exports = {registerUser, loginUser};
