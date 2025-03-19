@@ -6,8 +6,9 @@ const JWT_SECRET = process.env.JWT_SECRET
 const usersModel = require("../models/usersModel");
 
 const registerUser = async (user) => {
-    user.password = bcrypt.hashSync(user.password, saltRounds);
-    const dbUser = await usersModel.create(user);
+    const tmpUser = {...user};
+    tmpUser.password =      bcrypt.hashSync(user.password, saltRounds);
+    const dbUser = await usersModel.create(tmpUser);
     return dbUser;
 };
  
