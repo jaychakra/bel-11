@@ -20,13 +20,13 @@ const loginUser = async (email, password) => {
     const dbUser = await usersModel.findOne(body);
 
     if (!dbUser) {
-        return res.status(404).send({messsage: "User not found"});
+        throw new Error("User not found");
     }
 
     const isSamePassword = await bcrypt.compare(password,dbUser.password);
     
     if (!isSamePassword) {
-        return res.status(401).send({message :"Invalid Password"});
+        throw new Error("Invalid Password");
     }
     
     const token = jwt.sign({email: dbUser.email, role: dbUser.role}, JWT_SECRET, {expiresIn: "1h"});
