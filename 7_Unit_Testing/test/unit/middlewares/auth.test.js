@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { isAuthorized } = require('../../src/middlewares/auth'); // Adjust path as needed
+const { isAuthorized } = require('../../../src/middlewares/auth'); // Adjust path as needed
 
 jest.mock('jsonwebtoken'); 
 

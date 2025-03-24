@@ -2,8 +2,8 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "AIRTRIBE_JWT_SECRET"
-const usersModel = require("../../src/models/usersModel");
-const { registerUser, loginUser } = require("../../src/controllers/usersController");
+const usersModel = require("../../../src/models/usersModel");
+const { registerUser, loginUser } = require("../../../src/controllers/usersController");
 const mongoose = require('mongoose');
 const {MongoMemoryServer} =  require("mongodb-memory-server");
 

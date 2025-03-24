@@ -1,9 +1,9 @@
 const request = require("supertest");
 const express = require("express");
-const router = require("../../src/routes/usersRoute"); // Your user routes
+const router = require("../../../src/routes/usersRoute"); // Your user routes
 
-const usersController = require("../../src/controllers/usersController"); // Your controller functions
-jest.mock("../../src/controllers/usersController");
+const usersController = require("../../../src/controllers/usersController"); // Your controller functions
+jest.mock("../../../src/controllers/usersController");
 
 const app = express();
 app.use(express.json());

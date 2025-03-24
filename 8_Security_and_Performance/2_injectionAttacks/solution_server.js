@@ -68,7 +68,7 @@ app.post('/api/login', async (req, res) => {
       FROM users 
       WHERE username = ?
     `;
-    
+
     db.get(query, [username], async (err, user) => {
       if (err) return res.status(500).json({ error: 'Database error' });
       if (!user) return res.status(401).json({ error: 'Invalid credentials' });

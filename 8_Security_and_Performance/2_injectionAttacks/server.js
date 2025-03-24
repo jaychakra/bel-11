@@ -115,7 +115,7 @@ app.get('/api/users/profile', (req, res) => {
     WHERE username = '${username}'
   `;
   
-  db.get(query, (err, user) => {
+  db.all(query, (err, user) => {
     if (err) return res.status(500).json({ error: err.message });
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);

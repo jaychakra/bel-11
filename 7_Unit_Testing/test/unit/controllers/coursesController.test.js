@@ -1,7 +1,7 @@
-const coursesController = require('../../src/controllers/coursesController');
-const coursesModel = require('../../src/models/coursesModel');
+const coursesController = require('../../../src/controllers/coursesController');
+const coursesModel = require('../../../src/models/coursesModel');
 
-jest.mock('../../src/models/coursesModel');
+jest.mock('../../../src/models/coursesModel');
 
 
 // Want to test empty courses
