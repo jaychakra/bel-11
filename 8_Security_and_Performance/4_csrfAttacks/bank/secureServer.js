@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const csrf = require('express-csrf');  // Use express-csrf instead of csurf
+const csrf = require('csurf');  // Use express-csrf instead of csurf
 const session = require('express-session');
 const cors = require('cors');
 const app = express();
@@ -8,11 +8,11 @@ const app = express();
 // 1. Enable CORS with specific options
 // Let's request from specific origin to hit the server
 // cors: Cross Origin Request Sharing
-app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST'],
-  credentials: true
-}));
+// app.use(cors({
+//   origin: 'http://localhost:3000',
+//   methods: ['GET', 'POST'],
+//   credentials: true
+// }));
 
 // 2. Set up session management
 app.use(session({

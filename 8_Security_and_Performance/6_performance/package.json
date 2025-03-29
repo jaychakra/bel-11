@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "autocannon": "^8.0.0",
+    "benchmark": "^2.1.4",
+    "crypto": "^1.0.1"
+  }
+}

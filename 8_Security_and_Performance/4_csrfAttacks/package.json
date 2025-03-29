@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "csurf": "^1.10.0",
+    "express-csrf": "^0.3.4",
+    "express-session": "^1.18.1"
+  }
+}
