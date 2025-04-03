@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <style>
+        .room { 
+            margin-bottom: 20px; 
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .system-message {
+            color: #666;
+            font-style: italic;
+            background-color: #f8f8f8;
+        }
+        .user-message {
+            background-color: #e8f4ff;
+        }
+        .status { 
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 5px;
+        }
+        button {
+            padding: 5px 15px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>Socket.IO Demo</h2>
+        <div id="connection-status" class="status">Connecting...</div>
+        
+        <!-- Room Selection -->
+        <div class="room">
+            <h3>Join Room</h3>
+            <select id="room-select">
+                <option value="room1">Room 1</option>
+                <option value="room2">Room 2</option>
+                <option value="room3">Room 3</option>
+            </select>
+            <input type="text" id="username-input" placeholder="Enter username">
+            <button onclick="joinRoom(document.getElementById('room-select').value, document.getElementById('username-input').value)">Join</button>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="room">
+            <h3>Chat</h3>
+            <div id="current-room"></div>
+            <div id="messages" class="messages"></div>
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Type a message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Socket.IO with auto-reconnection config
+        const socket = io('http://localhost:3000', {
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000,
+        });
+
+        // Get DOM elements
+        const statusDiv = document.getElementById('connection-status');
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('message-input');
+        const roomSelect = document.getElementById('room-select');
+        const currentRoomDiv = document.getElementById('current-room');
+
+        let currentRoom = null;
+        let currentUsername = null;
+
+        // Connection event handlers
+        socket.on('connect', () => {
+            statusDiv.textContent = 'Connected';
+            statusDiv.style.color = 'green';
+
+            // Rejoin the previous room if any
+            if (currentRoom) {
+                joinRoom(currentRoom, currentUsername);
+            }
+        });
+
+        socket.on('disconnect', () => {
+            statusDiv.textContent = 'Disconnected. Attempting to reconnect...';
+            statusDiv.style.color = 'red';
+
+            // Store the current room and username
+            storeUserData();
+        });
+
+        socket.on('reconnect_attempt', (attemptNumber) => {
+            statusDiv.textContent = `Reconnection attempt ${attemptNumber}...`;
+            statusDiv.style.color = 'orange';
+        });
+
+        // Handle room history when joining a room
+        socket.on('roomHistory', (data) => {
+            messagesDiv.innerHTML = ''; // Clear previous messages
+            if(data.room) {
+                currentRoomDiv.textContent = `Current Room: ${data.room}`;
+            }
+            
+            // Display message history
+            data.messages.forEach(addMessageToUI);
+            
+            // Scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        // Handle new messages
+        socket.on('message', (data) => {
+            addMessageToUI(data);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        function addMessageToUI(data) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${data.type}-message`;
+            
+            const timestamp = new Date(data.timestamp).toLocaleTimeString();
+            
+            if (data.type === 'system') {
+                messageElement.innerHTML = `
+                    <span class="timestamp">[${timestamp}]</span>
+                    <span>${data.message}</span>
+                `;
+            } else {
+                messageElement.innerHTML = `
+                    <span class="timestamp">[${timestamp}]</span>
+                    <strong>${data.username}:</strong> ${data.message}
+                `;
+            }
+            
+            messagesDiv.appendChild(messageElement);
+        }
+
+        // Join room function
+        function joinRoom(room, username) {
+            socket.emit('joinRoom', { room, username });
+            currentRoom = room;
+            currentUsername = username;
+            messageInput.focus();
+        }
+
+        // Send message function
+        function sendMessage() {
+            if (!currentRoom) {
+                alert('Please join a room first');
+                return;
+            }
+
+            const message = messageInput.value.trim();
+            if (message) {
+                socket.emit('chatMessage', {
+                    room: currentRoom,
+                    username: currentUsername,
+                    message: message
+                });
+                messageInput.value = '';
+            }
+        }
+
+        // Store user data on disconnect
+        function storeUserData() {
+            localStorage.setItem('currentRoom', currentRoom);
+            localStorage.setItem('currentUsername', currentUsername);
+        }
+
+        // Restore user data on reconnect
+        function restoreUserData() {
+            currentRoom = localStorage.getItem('currentRoom');
+            currentUsername = localStorage.getItem('currentUsername');
+        }
+
+        // Restore user data and rejoin room on connect
+        restoreUserData();
+        // Handle enter key in message input
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
